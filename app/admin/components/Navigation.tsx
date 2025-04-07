@@ -24,11 +24,11 @@ const Navigation = () => {
       path: '/admin/dashboard',
     },
     {
-      name: 'Page Content',
+      name: 'Content Editor',
       path: '/admin/content',
     },
     {
-      name: 'Page Style',
+      name: 'Style Editor',
       path: '/admin/style',
     },
     {
@@ -38,6 +38,10 @@ const Navigation = () => {
     {
       name: 'Test CMS',
       path: '/admin/test-cms',
+    },
+    {
+      name: 'Test Credentials',
+      path: '/admin/test-credentials',
     },
   ];
 
