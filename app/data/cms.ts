@@ -25,8 +25,8 @@ export const defaultCMSData: CMSData = {
       checkoutUrl: 'https://checkout.stripe.com',
       isActive: true,
       apiKeys: {
-        publicKey: 'pk_test_example',
-        secretKey: 'sk_test_example',
+        publicKey: '',
+        secretKey: '',
       },
     },
     {
@@ -35,8 +35,8 @@ export const defaultCMSData: CMSData = {
       checkoutUrl: 'https://checkout.flutterwave.com',
       isActive: false,
       apiKeys: {
-        publicKey: 'FLWPUBK_TEST',
-        secretKey: 'FLWSECK_TEST',
+        publicKey: '',
+        secretKey: '',
       },
     },
   ],

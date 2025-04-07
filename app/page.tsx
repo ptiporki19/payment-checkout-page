@@ -3,18 +3,19 @@
 import { useEffect, useState } from 'react';
 import { CMSData } from './types/cms';
 import CheckoutPage from './components/CheckoutPage';
-import { defaultCMSData } from './data/cms';
 
 export default function Home() {
-  const [cmsData, setCmsData] = useState<CMSData>(defaultCMSData);
-  const [loading, setLoading] = useState(true);
+  const [cmsData, setCmsData] = useState<CMSData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCMSData = async () => {
+    const fetchData = async () => {
       try {
-        setLoading(true);
-        const response = await fetch('/api/cms');
+        setIsLoading(true);
+        const response = await fetch('/api/cms', {
+          cache: 'no-store',
+        });
         
         if (!response.ok) {
           throw new Error('Failed to fetch CMS data');
@@ -22,42 +23,26 @@ export default function Home() {
         
         const data = await response.json();
         setCmsData(data);
+        setError(null);
       } catch (err) {
-        console.error('Error fetching CMS data:', err);
-        setError('Failed to load page content. Please try again later.');
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchCMSData();
-  }, []);
+    fetchData();
+  }, []); // Empty dependency array means this only runs once when component mounts
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-light">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg text-gray-700">Loading payment page...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-light">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Error</h2>
-          <p className="text-gray-600">{error}</p>
-          <button 
-            className="mt-6 bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary"
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
             onClick={() => window.location.reload()}
+            className="btn-primary"
           >
             Try Again
           </button>
@@ -66,6 +51,16 @@ export default function Home() {
     );
   }
 
-  // Render the checkout page with CMS data
+  if (!cmsData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading checkout page...</p>
+        </div>
+      </div>
+    );
+  }
+
   return <CheckoutPage cmsData={cmsData} />;
 } 

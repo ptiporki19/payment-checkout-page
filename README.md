@@ -1,71 +1,78 @@
-# Dynamic Payment Checkout Page
+# Payment Checkout Page with CMS
 
-A single-page, dynamic checkout solution with a CMS for managing content and payment gateways.
+A modern, customizable payment checkout page with an integrated Content Management System (CMS) for easy content and style management.
 
 ## Features
 
-- **Single-Page Design**: Clean, professional checkout page with customizable elements
-- **Dynamic Content**: All text, colors, and images can be updated through a CMS
-- **Multiple Payment Gateways**: Support for various payment processors (Stripe, Flutterwave, etc.)
-- **Easy Configuration**: Switch between payment gateways with a simple toggle
-- **Responsive Design**: Works beautifully on all devices
-- **Customizable Styling**: Change colors, backgrounds, and text through the CMS
+- 🎨 Customizable checkout page with CMS
+- 💳 Multiple payment gateway support
+- 🔒 Secure admin authentication
+- 🎯 Real-time content updates
+- 📱 Responsive design
+- 🎨 Tailwind CSS styling
+
+## Tech Stack
+
+- Next.js
+- TypeScript
+- Tailwind CSS
+- React
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 14.x or higher
-- npm or yarn
-
-### Installation
-
-1. Clone the repository
+1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/payment-page.git
-cd payment-page
+git clone https://github.com/ptiporki19/payment-checkout-page.git
 ```
 
-2. Install dependencies
+2. Install dependencies:
 ```bash
+cd payment-checkout-page
 npm install
-# or
-yarn install
 ```
 
-3. Start the development server
+3. Create a `.env.local` file in the root directory and add your environment variables:
+```env
+ADMIN_USERNAME=your_admin_username
+ADMIN_PASSWORD=your_admin_password
+```
+
+4. Run the development server:
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Open [http://localhost:3005](http://localhost:3005) in your browser.
 
-## CMS Integration
+## Admin Access
 
-This project includes a simulation of a CMS. In a production environment, you would integrate with a headless CMS like Contentful, Sanity, Strapi, or implement your own CMS dashboard.
+- Admin URL: `/admin/login`
+- Default credentials (change in production):
+  - Username: admin
+  - Password: password123
 
-The CMS allows you to manage:
-- Page content (title, headings, button text, etc.)
-- Page styling (colors, backgrounds)
-- Payment gateway configurations
-- Active payment gateway selection
+## Project Structure
 
-## Customizing the Checkout Page
+```
+payment-checkout-page/
+├── app/
+│   ├── admin/           # Admin dashboard components
+│   ├── api/             # API routes
+│   ├── components/      # Shared components
+│   └── types/           # TypeScript types
+├── public/              # Static assets
+└── styles/              # Global styles
+```
 
-All content and styling can be modified through the CMS:
+## Security Notes
 
-1. **Page Content**: Title, headings, descriptions, button text
-2. **Page Styling**: Background colors/images, text colors, button colors
-3. **Payment Gateways**: Add, edit, or remove payment gateway configurations
-4. **Active Gateway**: Select which payment gateway to use for processing
+- This is a demo project. In production:
+  - Use proper authentication
+  - Store sensitive data in environment variables
+  - Implement proper session management
+  - Use HTTPS
+  - Never commit API keys or secrets
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details
-
-## Acknowledgments
-
-- Built with Next.js, TypeScript, and TailwindCSS
-- Icons from Heroicons 
+MIT 
