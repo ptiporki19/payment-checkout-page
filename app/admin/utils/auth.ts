@@ -10,43 +10,29 @@ import crypto from 'crypto';
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'password123';
 
-// Simple password hashing function (for demo purposes only)
-// In a real app, use a proper hashing algorithm like bcrypt
+// Simple password hashing function
 const hashPassword = async (password: string): Promise<string> => {
   return crypto.createHash('md5').update(password).digest('hex');
 };
 
-// Check if the user is authenticated on the client-side
+// Check if the user is authenticated
 export const isAuthenticated = (): boolean => {
   if (typeof window === 'undefined') return false;
-  
-  // Check both localStorage and cookies
-  const localAuth = localStorage.getItem('cms_auth') === 'true';
-  const cookieAuth = document.cookie.includes('cms_auth=true');
-  
-  return localAuth || cookieAuth;
+  return localStorage.getItem('cms_auth') === 'true';
 };
 
 // Set authentication state
 export const setAuthenticated = (value: boolean): void => {
   if (typeof window === 'undefined') return;
-  
-  if (value) {
-    localStorage.setItem('cms_auth', 'true');
-    // Set a cookie that will be visible to the middleware
-    document.cookie = 'cms_auth=true; path=/; max-age=86400'; // 24 hours
-  } else {
-    localStorage.removeItem('cms_auth');
-    // Clear the auth cookie
-    document.cookie = 'cms_auth=; path=/; max-age=0';
-  }
+  localStorage.setItem('cms_auth', value.toString());
 };
 
 // Login function
 export const login = async (username: string, password: string): Promise<boolean> => {
   try {
+    console.log('Attempting login with:', { username });
     const hashedPassword = await hashPassword(password);
-    console.log('Attempting login with:', { username, hashedPassword });
+    console.log('Hashed password:', hashedPassword);
 
     const { data, error } = await supabase
       .from('admin_users')
@@ -55,13 +41,15 @@ export const login = async (username: string, password: string): Promise<boolean
       .eq('password_hash', hashedPassword)
       .single();
 
+    console.log('Supabase response:', { data, error });
+
     if (error) {
       console.error('Login error:', error);
       return false;
     }
 
     if (!data) {
-      console.error('No user found');
+      console.error('No user found with these credentials');
       return false;
     }
 
