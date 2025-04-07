@@ -24,7 +24,6 @@ export default function AdminLogin() {
     setError(null);
 
     try {
-      // In a real app, this would be an API call to verify credentials
       const success = await login(username, password);
       
       if (success) {
@@ -33,6 +32,7 @@ export default function AdminLogin() {
         setError('Invalid username or password');
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -96,7 +96,9 @@ export default function AdminLogin() {
         </form>
         
         <div className="mt-4 text-center text-sm text-gray-500">
-          <p>Note: In a production environment, credentials should be managed through environment variables or a secure authentication service.</p>
+          <p>Demo credentials:</p>
+          <p>Username: admin</p>
+          <p>Password: password123</p>
         </div>
       </div>
     </div>

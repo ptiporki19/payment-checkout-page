@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "Dynamic single-page checkout solution with CMS functionality",
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
     "@types/node": "^20.11.24",
     "@types/react": "^18.2.61",
     "next": "^14.1.0",

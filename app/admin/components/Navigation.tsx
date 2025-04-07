@@ -35,6 +35,10 @@ const Navigation = () => {
       name: 'Payment Gateways',
       path: '/admin/payment-gateways',
     },
+    {
+      name: 'Test CMS',
+      path: '/admin/test-cms',
+    },
   ];
 
   return (

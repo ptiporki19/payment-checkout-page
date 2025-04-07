@@ -3,9 +3,18 @@
  * In a real application, you would use a more secure authentication system
  */
 
+import { supabase } from '../../utils/supabase';
+import crypto from 'crypto';
+
 // For demo purposes, these would come from environment variables in a real app
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'password123';
+
+// Simple password hashing function (for demo purposes only)
+// In a real app, use a proper hashing algorithm like bcrypt
+const hashPassword = async (password: string): Promise<string> => {
+  return crypto.createHash('md5').update(password).digest('hex');
+};
 
 // Check if the user is authenticated on the client-side
 export const isAuthenticated = (): boolean => {
@@ -35,11 +44,34 @@ export const setAuthenticated = (value: boolean): void => {
 
 // Login function
 export const login = async (username: string, password: string): Promise<boolean> => {
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+  try {
+    const hashedPassword = await hashPassword(password);
+    console.log('Attempting login with:', { username, hashedPassword });
+
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('username', username)
+      .eq('password_hash', hashedPassword)
+      .single();
+
+    if (error) {
+      console.error('Login error:', error);
+      return false;
+    }
+
+    if (!data) {
+      console.error('No user found');
+      return false;
+    }
+
+    console.log('Login successful:', data);
     setAuthenticated(true);
     return true;
+  } catch (error) {
+    console.error('Login error:', error);
+    return false;
   }
-  return false;
 };
 
 // Logout function
