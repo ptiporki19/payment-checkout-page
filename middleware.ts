@@ -19,9 +19,20 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // If the user is authenticated and trying to access login page
-  if (session && req.nextUrl.pathname === '/admin/login') {
-    return NextResponse.redirect(new URL('/admin/dashboard', req.url));
+  // If the user is authenticated, check if they have admin role
+  if (session) {
+    const { data: { user } } = await supabase.auth.getUser();
+    const roles = user?.app_metadata?.roles || [];
+    
+    // If user is authenticated but not an admin, redirect to home
+    if (req.nextUrl.pathname.startsWith('/admin') && !roles.includes('admin')) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+
+    // If user is authenticated and trying to access login page
+    if (req.nextUrl.pathname === '/admin/login') {
+      return NextResponse.redirect(new URL('/admin/dashboard', req.url));
+    }
   }
 
   return res;

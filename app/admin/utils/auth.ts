@@ -15,11 +15,15 @@ const hashPassword = async (password: string): Promise<string> => {
   return crypto.createHash('md5').update(password).digest('hex');
 };
 
-// Check if the user is authenticated
+// Check if the user is authenticated and has admin role
 export const isAuthenticated = async (): Promise<boolean> => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    return !!session;
+    if (!session) return false;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const roles = user?.app_metadata?.roles || [];
+    return roles.includes('admin');
   } catch (error) {
     console.error('Auth check error:', error);
     return false;
@@ -42,6 +46,16 @@ export const login = async (email: string, password: string): Promise<boolean> =
 
     if (error) {
       console.error('Login error:', error);
+      return false;
+    }
+
+    // Check if user has admin role
+    const { data: { user } } = await supabase.auth.getUser();
+    const roles = user?.app_metadata?.roles || [];
+    
+    if (!roles.includes('admin')) {
+      console.error('User does not have admin role');
+      await supabase.auth.signOut();
       return false;
     }
 
