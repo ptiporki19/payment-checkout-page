@@ -15,18 +15,20 @@ const hashPassword = async (password: string): Promise<string> => {
   return crypto.createHash('md5').update(password).digest('hex');
 };
 
-// Check if the user is authenticated and has admin role
+// Check if the user is authenticated and is an admin
 export const isAuthenticated = async (): Promise<boolean> => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return false;
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return false;
+    // Get the user's role
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
 
-    // Check app_metadata for roles
-    const roles = user.app_metadata?.roles || [];
-    return roles.includes('admin');
+    return userData?.role === 'admin';
   } catch (error) {
     console.error('Auth check error:', error);
     return false;
@@ -52,24 +54,14 @@ export const login = async (email: string, password: string): Promise<boolean> =
       return false;
     }
 
-    // Check if user has admin role
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      console.error('No user found after login');
-      await supabase.auth.signOut();
-      return false;
-    }
+    // Check if the user is an admin
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', data.session?.user.id)
+      .single();
 
-    // Check app_metadata for roles
-    const roles = user.app_metadata?.roles || [];
-    
-    if (!roles.includes('admin')) {
-      console.error('User does not have admin role');
-      await supabase.auth.signOut();
-      return false;
-    }
-
-    return !!data.session;
+    return userData?.role === 'admin';
   } catch (error) {
     console.error('Login error:', error);
     return false;
@@ -89,7 +81,15 @@ export const logout = async (): Promise<void> => {
 export const getCurrentUser = async () => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    return user;
+    if (!user) return null;
+
+    const { data: userData } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    return { ...user, ...userData };
   } catch (error) {
     console.error('Get user error:', error);
     return null;
