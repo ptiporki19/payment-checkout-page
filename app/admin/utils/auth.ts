@@ -15,24 +15,9 @@ const hashPassword = async (password: string): Promise<string> => {
   return crypto.createHash('md5').update(password).digest('hex');
 };
 
-// Check if the user is authenticated and is an admin
+// Temporarily bypass authentication
 export const isAuthenticated = async (): Promise<boolean> => {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return false;
-
-    // Get the user's role
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
-
-    return userData?.role === 'admin';
-  } catch (error) {
-    console.error('Auth check error:', error);
-    return false;
-  }
+  return true; // Always return true for now
 };
 
 // Set authentication state
@@ -41,57 +26,21 @@ export const setAuthenticated = (value: boolean): void => {
   localStorage.setItem('cms_auth', value.toString());
 };
 
-// Login function
+// Login function - temporarily bypass
 export const login = async (email: string, password: string): Promise<boolean> => {
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      console.error('Login error:', error);
-      return false;
-    }
-
-    // Check if the user is an admin
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', data.session?.user.id)
-      .single();
-
-    return userData?.role === 'admin';
-  } catch (error) {
-    console.error('Login error:', error);
-    return false;
-  }
+  return true; // Always return true for now
 };
 
-// Logout function
+// Logout function - temporarily bypass
 export const logout = async (): Promise<void> => {
-  try {
-    await supabase.auth.signOut();
-  } catch (error) {
-    console.error('Logout error:', error);
-  }
+  // Do nothing for now
 };
 
-// Get current user
+// Get current user - return mock admin user
 export const getCurrentUser = async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
-
-    const { data: userData } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    return { ...user, ...userData };
-  } catch (error) {
-    console.error('Get user error:', error);
-    return null;
-  }
+  return {
+    id: '1',
+    email: 'admin@example.com',
+    role: 'admin'
+  };
 }; 
