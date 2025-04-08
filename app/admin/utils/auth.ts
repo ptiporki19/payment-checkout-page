@@ -22,7 +22,10 @@ export const isAuthenticated = async (): Promise<boolean> => {
     if (!session) return false;
 
     const { data: { user } } = await supabase.auth.getUser();
-    const roles = user?.app_metadata?.roles || [];
+    if (!user) return false;
+
+    // Check app_metadata for roles
+    const roles = user.app_metadata?.roles || [];
     return roles.includes('admin');
   } catch (error) {
     console.error('Auth check error:', error);
@@ -51,7 +54,14 @@ export const login = async (email: string, password: string): Promise<boolean> =
 
     // Check if user has admin role
     const { data: { user } } = await supabase.auth.getUser();
-    const roles = user?.app_metadata?.roles || [];
+    if (!user) {
+      console.error('No user found after login');
+      await supabase.auth.signOut();
+      return false;
+    }
+
+    // Check app_metadata for roles
+    const roles = user.app_metadata?.roles || [];
     
     if (!roles.includes('admin')) {
       console.error('User does not have admin role');
