@@ -1,28 +1,30 @@
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  // Get the pathname of the request
-  const pathname = request.nextUrl.pathname;
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req, res });
 
-  // Allow access to the login page
-  if (pathname === '/admin/login') {
-    return NextResponse.next();
-  }
+  // Check if the user is authenticated
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  // Check for admin routes that need protection
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    // In a real app, this would check for a valid session or JWT token
-    // Here we're checking for a specific cookie that gets set on login
-    const authCookie = request.cookies.get('cms_auth');
-    
-    // If not authenticated, redirect to login
-    if (!authCookie || authCookie.value !== 'true') {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
+  // If the user is not authenticated and trying to access admin routes
+  if (!session && req.nextUrl.pathname.startsWith('/admin')) {
+    // Redirect to login page if not already there
+    if (req.nextUrl.pathname !== '/admin/login') {
+      return NextResponse.redirect(new URL('/admin/login', req.url));
     }
   }
 
-  return NextResponse.next();
+  // If the user is authenticated and trying to access login page
+  if (session && req.nextUrl.pathname === '/admin/login') {
+    return NextResponse.redirect(new URL('/admin/dashboard', req.url));
+  }
+
+  return res;
 }
 
 // Match all admin routes

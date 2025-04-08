@@ -1,22 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { isAuthenticated, setAuthenticated, login } from '../utils/auth';
+import { login } from '../utils/auth';
 
-export default function AdminLogin() {
-  const [username, setUsername] = useState('');
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
-  // Check if already authenticated
-  useEffect(() => {
-    if (isAuthenticated()) {
-      router.push('/admin/dashboard');
-    }
-  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,12 +17,12 @@ export default function AdminLogin() {
     setError(null);
 
     try {
-      const success = await login(username, password);
+      const success = await login(email, password);
       
       if (success) {
         router.push('/admin/dashboard');
       } else {
-        setError('Invalid username or password');
+        setError('Invalid email or password');
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -53,16 +46,16 @@ export default function AdminLogin() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="username" className="block text-gray-700 mb-2">
-                Username
+              <label htmlFor="email" className="block text-gray-700 mb-2">
+                Email
               </label>
               <input
-                type="text"
-                id="username"
+                type="email"
+                id="email"
                 required
                 className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="mt-4">
@@ -97,7 +90,7 @@ export default function AdminLogin() {
         
         <div className="mt-4 text-center text-sm text-gray-500">
           <p>Demo credentials:</p>
-          <p>Username: admin</p>
+          <p>Email: admin@example.com</p>
           <p>Password: password123</p>
         </div>
       </div>

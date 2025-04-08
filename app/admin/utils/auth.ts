@@ -16,9 +16,14 @@ const hashPassword = async (password: string): Promise<string> => {
 };
 
 // Check if the user is authenticated
-export const isAuthenticated = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  return localStorage.getItem('cms_auth') === 'true';
+export const isAuthenticated = async (): Promise<boolean> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session;
+  } catch (error) {
+    console.error('Auth check error:', error);
+    return false;
+  }
 };
 
 // Set authentication state
@@ -28,34 +33,19 @@ export const setAuthenticated = (value: boolean): void => {
 };
 
 // Login function
-export const login = async (username: string, password: string): Promise<boolean> => {
+export const login = async (email: string, password: string): Promise<boolean> => {
   try {
-    console.log('Attempting login with:', { username });
-    const hashedPassword = await hashPassword(password);
-    console.log('Hashed password:', hashedPassword);
-
-    const { data, error } = await supabase
-      .from('admin_users')
-      .select('*')
-      .eq('username', username)
-      .eq('password_hash', hashedPassword)
-      .single();
-
-    console.log('Supabase response:', { data, error });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
       console.error('Login error:', error);
       return false;
     }
 
-    if (!data) {
-      console.error('No user found with these credentials');
-      return false;
-    }
-
-    console.log('Login successful:', data);
-    setAuthenticated(true);
-    return true;
+    return !!data.session;
   } catch (error) {
     console.error('Login error:', error);
     return false;
@@ -63,7 +53,21 @@ export const login = async (username: string, password: string): Promise<boolean
 };
 
 // Logout function
-export const logout = (): void => {
-  setAuthenticated(false);
-  // In a real app, you might also want to call an API to invalidate tokens
+export const logout = async (): Promise<void> => {
+  try {
+    await supabase.auth.signOut();
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
+};
+
+// Get current user
+export const getCurrentUser = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch (error) {
+    console.error('Get user error:', error);
+    return null;
+  }
 }; 

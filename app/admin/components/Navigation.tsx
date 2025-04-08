@@ -43,10 +43,6 @@ const Navigation = () => {
       name: 'Test Credentials',
       path: '/admin/test-credentials',
     },
-    {
-      name: 'Create Admin',
-      path: '/admin/create-admin',
-    },
   ];
 
   return (
